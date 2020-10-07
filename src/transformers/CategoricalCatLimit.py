@@ -46,26 +46,43 @@ class CategoricalCatLimit(BaseEstimator, TransformerMixin):
         else:
             if X_.shape[1] != len(self.cat_num):
                 raise ValueError("Number of columns in X must match the length of other_value")  
+        
+        if isinstance(X, np.ndarray):
+            for ii in range(0,X_.shape[1]):
+                unique, counts = np.unique(X_[:,ii], return_counts=True)
+                sorted_list = {k: v for k, v in sorted(dict(zip(unique, counts)).items(), key=lambda item: item[1], reverse=True)}
 
-        for ii in range(0,X_.shape[1]):
-            unique, counts = np.unique(X_.iloc[:,ii], return_counts=True)
-            sorted_list = {k: v for k, v in sorted(dict(zip(unique, counts)).items(), key=lambda item: item[1], reverse=True)}
+                self.allowed_value.append([*sorted_list][0:self.cat_num[ii]])
 
-            self.allowed_value.append([*sorted_list][0:self.cat_num[ii]])
-            
-            if X_.iloc[:,ii].dtype in ['O','S'] and len(self.other_value)<=ii:
-                self.other_value.append("other")
-            elif X_.iloc[:,ii].dtype in ['I','F', "int32", "float32", "int64", "float64"] and len(self.other_value)<=ii:
-                self.other_value.append(-1)
-            elif len(self.other_value)<=ii:
-                raise ValueError(f"Data type of {X_.iloc[:,ii].dtype} not know")
+                if isinstance(X_[0,ii],str) and len(self.other_value)<=ii:
+                    self.other_value.append("other")
+                elif isinstance(X_[0,ii],(int, float, np.int, np.int32, np.int64, np.float, np.float32, np.float64)) and len(self.other_value)<=ii:
+                    self.other_value.append(-1)
+                elif len(self.other_value)<=ii:
+                    print(X_[0,ii])
+                    raise ValueError(f"Data type of {type(X_[0,ii])} not know")
+
+        elif isinstance(X, pd.DataFrame):
+
+            for ii in range(0,X_.shape[1]):
+                unique, counts = np.unique(X_.iloc[:,ii], return_counts=True)
+                sorted_list = {k: v for k, v in sorted(dict(zip(unique, counts)).items(), key=lambda item: item[1], reverse=True)}
+
+                self.allowed_value.append([*sorted_list][0:self.cat_num[ii]])
+                
+                if X_.iloc[:,ii].dtype in ['O','S'] and len(self.other_value)<=ii:
+                    self.other_value.append("other")
+                elif X_.iloc[:,ii].dtype in ['I','F', "int32", "float32", "int64", "float64"] and len(self.other_value)<=ii:
+                    self.other_value.append(-1)
+                elif len(self.other_value)<=ii:
+                    raise ValueError(f"Data type of {X_.iloc[:,ii].dtype} not know")
 
     def transform(self, X, y=None):
         X_=X.copy()
 
         if isinstance(X, np.ndarray):
             for col_ii in range(0,X_.shape[1]): 
-                logic = [v not in self.allowed_value[col_ii] for v in X.iloc[:,col_ii].values]
+                logic = [v not in self.allowed_value[col_ii] for v in X[:,col_ii].tolist()]
                 X_[logic, col_ii] = self.other_value[col_ii]
         
         elif isinstance(X, pd.DataFrame):
