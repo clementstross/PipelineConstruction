@@ -1,0 +1,9 @@
+FeatureName,TransformedName,Include,Raw,Numeric,Numeric_Unk_Max,Numeric_Cap_Max,Numeric_Cap_Min,Numeric_Unk_Min,Missing_Values,Shadow_Col,Impute_Strategy,Impute_Value
+MedInc,MedInc,Y,Y,Y,9,8,4,3,-1; -2,N,median,
+HouseAge,HouseAge,Y,Y,Y,50,45,30,20,,Y,median,
+AveRooms,AveRooms,Y,Y,Y,4,3,2,0,,Y,median,
+AveBedrms,AveBedrms,Y,Y,Y,,,,,,Y,constant,10
+Population,Population,Y,Y,Y,10000,2000,500,50,,Y,median,
+AveOccup,AveOccup,Y,Y,Y,,,,,,Y,median,
+Latitude,Latitude,Y,Y,Y,,,,,,N,median,
+Longitude,Longitude,Y,Y,Y,,,,,,N,median,
