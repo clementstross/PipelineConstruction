@@ -60,8 +60,14 @@ class FrequencyEncoder(OrdinalEncoder):
                 counts = np.delete(counts, itemindex)
 
                 cats_dict = {k: v for k, v in sorted(dict(zip(unique, counts)).items(), key=lambda item: item[1], reverse=True)}
-                cats = flatten([self.keep_at_start[i], [*cats_dict], self.keep_at_end[i]])
+                cats = np.array(flatten([self.keep_at_start[i], [*cats_dict], self.keep_at_end[i]]), dtype='object')
                 
+                #The transformation code doesn't work with numeric values
+                if Xi.dtype != object :
+                    if not np.all(np.sort(cats) == cats):
+                        raise ValueError("Unsorted categories are not "
+                                         "supported for numerical categories")
+
                 ### End of New code
 
             else:
