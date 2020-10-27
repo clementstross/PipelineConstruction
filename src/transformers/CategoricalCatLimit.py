@@ -14,7 +14,7 @@ class CategoricalCatLimit(BaseEstimator, TransformerMixin):
 
         Args:
             cat_num (list[int], optional): List of the number of categories the ith column should be trimmed to. Defaults to None.
-            other_value (list, optional): List of the value additional columns are mapped to. Defaults to None.
+            other_value (list, optional): List of the value additional columns are mapped to. Defaults to None. Meaning string "Other" is used
 
         Raises:
             ValueError: cat_num and other_value must be same length

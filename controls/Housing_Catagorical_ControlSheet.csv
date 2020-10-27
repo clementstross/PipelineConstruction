@@ -1,0 +1,11 @@
+FeatureName,TransformedName,Include,Raw,Catagorical,Catagorical_Level_Number,Catagorical_Encoding,Catagorical_Ordering,Missing_Values,Shadow_Col,Impute_Strategy,Impute_Value
+Id,Id,N,Y,Y,100,,,-1; -2,N,,
+MSZoning,MSZoning,Y,Y,Y,,ordinal,C (all); I; A; FV; RP; RL; RM; RH,,N,constant,Unknown
+Street,Street,Y,Y,Y,,ordinal,,,N,most_frequent,
+Alley,Alley,Y,Y,Y,,ordinal,,,N,constant,Unknown
+LotShape,LotShape,Y,Y,Y,,ordinal,Reg; IR1; IR2; IR3,,N,constant,Unknown
+LandContour,LandContour,N,Y,Y,,ordinal,Lvl; Bnk; HLS; Low,,N,constant,Unknown
+Utilities,Utilities,N,Y,Y,,,,,N,constant,Unknown
+LotConfig,LotConfig,Y,Y,Y,3,one_hot,,,N,constant,Unknown
+LandSlope,LandSlope,Y,Y,Y,,ordinal,Gtl; Mod; Sev,,N,constant,Unknown
+Neighborhood,Neighborhood,Y,Y,Y,5,frequency,,,N,constant,Unknown
