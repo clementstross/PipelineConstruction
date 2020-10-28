@@ -10,20 +10,20 @@ class NumericCapping(TransformerMixin, BaseEstimator):
     def __init__(self, unk_max=None, cap_max=None, cap_min=None, unk_min=None):
 
         # Error checking on order when values aren't NA
-        if unk_max<=cap_max and unk_max==unk_max and cap_max==cap_max:
-            raise ValueError(f"unk_max ({unk_max}) must be > cap_max ({cap_max})")
-        if unk_max<=cap_min and unk_max==unk_max and cap_min==cap_min:
+        if unk_max < cap_max and unk_max==unk_max and cap_max==cap_max:
+            raise ValueError(f"unk_max ({unk_max}) must be >= cap_max ({cap_max})")
+        if unk_max <= cap_min and unk_max==unk_max and cap_min==cap_min:
             raise ValueError(f"unk_max ({unk_max}) must be > cap_min ({cap_min})")
-        if unk_max<=unk_min and unk_max==unk_max and unk_min==unk_min:
+        if unk_max <= unk_min and unk_max==unk_max and unk_min==unk_min:
             raise ValueError(f"unk_max ({unk_max}) must be > unk_min ({unk_min})")
 
-        if cap_max<=cap_min and cap_max==cap_max and cap_min==cap_min:
+        if cap_max <= cap_min and cap_max==cap_max and cap_min==cap_min:
             raise ValueError(f"cap_max ({cap_max}) must be > cap_min ({cap_min})")
-        if cap_max<=unk_min and cap_max==cap_max and unk_min==unk_min:
+        if cap_max <= unk_min and cap_max==cap_max and unk_min==unk_min:
             raise ValueError(f"cap_max ({cap_max}) must be > unk_min ({unk_min})")
 
-        if cap_min<=unk_min and cap_min==cap_min and unk_min==unk_min:
-            raise ValueError(f"cap_min ({cap_min}) must be > unk_min ({unk_min})")
+        if cap_min < unk_min and cap_min==cap_min and unk_min==unk_min:
+            raise ValueError(f"cap_min ({cap_min}) must be >= unk_min ({unk_min})")
 
         self.unk_max=unk_max
         self.cap_max=cap_max

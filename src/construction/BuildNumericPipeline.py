@@ -107,16 +107,8 @@ def BuildNumericPipeline(control_sheet):
             # Add column to transformation list
             col_transformers_list.append((out_feat_ii, pre_col_ii, [in_feat_ii]))
 
-    col_transformer = ColumnTransformer(col_transformers_list)
 
-    # Create class function to calculate the names of the columns
-    def get_feature_names(self):
-        return(names_from_ColumnTransformer(column_transformer=self))
-
-    # Add class function
-    col_transformer.get_feature_names = types.MethodType(get_feature_names, col_transformer)
-
-    return(col_transformer)
+    return(col_transformers_list)
 
 
 if __name__=="__main__":
