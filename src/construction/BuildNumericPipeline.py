@@ -53,7 +53,7 @@ def BuildNumericPipeline(control_sheet):
             in_feat_ii = control_sheet.iloc[ii]["FeatureName"]
             out_feat_ii = control_sheet.iloc[ii]["TransformedName"]
             
-            # Start with a empy list (no transformations)
+            # Start with a empty list (no transformations)
             feature_union_list = []
 
             # Removing known missings ---------------------------------------------------
@@ -72,7 +72,7 @@ def BuildNumericPipeline(control_sheet):
             cap_max = control_sheet.iloc[ii]["Numeric_Cap_Max"]
             cap_min = control_sheet.iloc[ii]["Numeric_Cap_Min"]
             unk_min = control_sheet.iloc[ii]["Numeric_Unk_Min"]
-            # Cheak if any aren't NA. If so add capping transformer
+            # Check if any aren't NA. If so add capping transformer
             if unk_max==unk_max or cap_max==cap_max or cap_min==cap_min or cap_max==cap_max: 
                 feature_union_list.append(("capping", NumericCapping(unk_max=[unk_max], cap_max=[cap_max], cap_min=[cap_min], unk_min=[unk_min])))
 
@@ -83,10 +83,10 @@ def BuildNumericPipeline(control_sheet):
             
             # Check value of impute_strategy
             if impute_strategy not in ["mean", "median", "most_frequent", "constant"]:
-                raise ValueError(f'For feature-{in_feat_ii} Impute Stratergy must be in ["mean", "median", "most_frequent", "constant"] is {impute_strategy}')
+                raise ValueError(f'For feature-{in_feat_ii} Impute_Strategy must be in ["mean", "median", "most_frequent", "constant"] is {impute_strategy}')
             # Check constant value given if needed
             if impute_strategy=="constant" and impute_value!=impute_value:
-                raise ValueError(f'For feature-{in_feat_ii} if Impute Stratergy is "constant", impute_value can not be NA.')    
+                raise ValueError(f'For feature-{in_feat_ii} if Impute_Strategy is "constant", impute_value can not be NA.')    
 
             feature_union_list_no_impute = feature_union_list.copy() # needed to get shadow matrix
             feature_union_list.append(("impute", SimpleImputer(missing_values=np.nan, strategy=impute_strategy, fill_value=impute_value)))
@@ -107,16 +107,8 @@ def BuildNumericPipeline(control_sheet):
             # Add column to transformation list
             col_transformers_list.append((out_feat_ii, pre_col_ii, [in_feat_ii]))
 
-    col_transformer = ColumnTransformer(col_transformers_list)
 
-    # Create class function to calculate the names of the columns
-    def get_feature_names(self):
-        return(names_from_ColumnTransformer(column_transformer=self))
-
-    # Add class function
-    col_transformer.get_feature_names = types.MethodType(get_feature_names, col_transformer)
-
-    return(col_transformer)
+    return(col_transformers_list)
 
 
 if __name__=="__main__":

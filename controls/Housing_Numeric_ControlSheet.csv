@@ -1,0 +1,11 @@
+FeatureName,TransformedName,Include,Raw,Numeric,Numeric_Unk_Min,Numeric_Cap_Min,Numeric_Cap_Max,Numeric_Unk_Max,Missing_Values,Shadow_Col,Impute_Strategy,Impute_Value
+Id,Id,N,Y,Y,,,,,-1; -2,N,median,
+MSSubClass,MSSubClass,Y,Y,Y,19,,,191,,Y,median,
+LotFrontage,LotFrontage,Y,Y,Y,0,10,175,1000,,Y,median,
+LotArea,LotArea,Y,Y,Y,0,10,30000,,,Y,constant,10
+OverallQual,OverallQual,Y,Y,Y,0,,,11,,Y,median,
+OverallCond,OverallCond,Y,Y,Y,0,,,11,,Y,median,
+YearBuilt,YearBuilt,Y,Y,Y,1500,1800,2020,2020,,Y,median,
+YearRemodAdd,YearRemodAdd,Y,Y,Y,1500,1800,2020,2020,,Y,median,
+MasVnrArea,MasVnrArea,Y,Y,Y,0,0,1000,,0,Y,constant,0
+BsmtFinSF1,BsmtFinSF1,Y,Y,Y,0,0,3000,10000,0,Y,constant,0
