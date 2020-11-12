@@ -79,9 +79,8 @@ class SetBinDiscretizer(KBinsDiscretizer):
     def __init__(self, bin_edges_internal, *, encode='onehot', input_features=None):
         # bin_edges_internal must be 2D list.
         # Ensure values are unique and sorted
-        self.bin_edges_internal = [sorted(list(set(bin_edges_internal_ii))) for bin_edges_internal_ii in bin_edges_internal]
+        self.bin_edges_internal = bin_edges_internal
         self.encode = encode
-
         self.input_features=input_features
 
     def fit(self, X, y=None):
@@ -114,7 +113,7 @@ class SetBinDiscretizer(KBinsDiscretizer):
             col_min, col_max = column.min(), column.max()
 
             #Add limits if needed
-            bin_edges_temp = self.bin_edges_internal[jj]
+            bin_edges_temp = sorted(list(set(self.bin_edges_internal[jj])))
             if col_min < min(bin_edges_temp):
                 bin_edges_temp = np.r_[col_min, bin_edges_temp]
             if col_max > max(bin_edges_temp):
