@@ -24,7 +24,7 @@ def names_from_ColumnTransformer(column_transformer):
                 transformer = transformer_in_columns[1]
 
             if isinstance(transformer,FeatureUnion): # Deal with FeatureUnion. Take name of each step
-                names = [nn[0] for nn in transformer.transformer_list]
+                names = names_from_FeatureUnion(FeatureUnion_transformer=transformer, raw_col_name=raw_col_name)
 
             else:
                 try:
@@ -40,3 +40,24 @@ def names_from_ColumnTransformer(column_transformer):
                 col_name.append(names)
     return col_name
 
+def names_from_FeatureUnion(FeatureUnion_transformer, raw_col_name=None):
+    names = []
+    for transformer_in_union in FeatureUnion_transformer.transformer_list:
+        
+        raw_col_name_t = transformer_in_union[0]
+
+        if isinstance(transformer_in_union[1],Pipeline): # Deal with piplines use last step
+            transformer = transformer_in_union[1].steps[-1][1]
+        else:
+            transformer = transformer_in_union[1]
+        
+        try:
+            names_t = transformer.get_feature_names([raw_col_name_t])
+            names += names_t.tolist()
+        except AttributeError:
+            try:
+                names_t = transformer._encoder.get_feature_names([raw_col_name_t])
+                names += names_t.tolist()
+            except AttributeError:
+                names.append(raw_col_name_t)
+    return(names)

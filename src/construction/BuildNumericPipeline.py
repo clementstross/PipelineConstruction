@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 import numpy as np
 import types
+import re
 
 # Import standard functions
 from sklearn.pipeline import Pipeline
@@ -9,11 +10,13 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import FeatureUnion
 from sklearn.impute import MissingIndicator
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import KBinsDiscretizer
 
 # Import custom functions
 sys.path.append('c:/Users/User/Documents/User/Work/Admiral/Pipeline_Builder/pipelineconstruction/src')
 from transformers.IdentifyUnknowns import IdentifyUnknowns
 from transformers.NumericCapping import NumericCapping
+from transformers.SetBinDiscretizer import SetBinDiscretizer
 from transformers.names_from_ColumnTransformer import names_from_ColumnTransformer
 
 
@@ -90,6 +93,24 @@ def BuildNumericPipeline(control_sheet):
 
             feature_union_list_no_impute = feature_union_list.copy() # needed to get shadow matrix
             feature_union_list.append(("impute", SimpleImputer(missing_values=np.nan, strategy=impute_strategy, fill_value=impute_value)))
+
+            # Add Additional encodings ---------------------------------------------------
+            one_hot_encoding = control_sheet.iloc[ii]["One_Hot_Encoding"]
+
+            if one_hot_encoding==one_hot_encoding: #Is not missing
+                if re.search("^(uniform|quantile|kmeans)\W*(\d+)", one_hot_encoding.lower()):
+                    strategy = re.search("^(uniform|quantile|kmeans)\W*(\d+)", one_hot_encoding.lower()).group(1)
+                    n_bins = int(re.search("^(uniform|quantile|kmeans)\W*(\d+)", one_hot_encoding.lower()).group(2))
+
+                    feature_union_list.append(("one_hot_encoding", KBinsDiscretizer(n_bins=n_bins, strategy=strategy)))
+
+                elif re.search("^(\s*\d+(\.\d*)?\s*;)+\s*$", one_hot_encoding):
+                    bin_edges = [float(ii) for ii in one_hot_encoding.split(";")[:-1]]
+
+                    feature_union_list.append(("one_hot_encoding", SetBinDiscretizer(bin_edges_internal=[bin_edges], input_features=[in_feat_ii])))
+                else:
+                    raise ValueError(f'For feature-{in_feat_ii} if one_hot_encoding must be blank or match either "^(uniform|quantile|kmeans)\W*(\d+)" or "^(\s*\d+(\.\d*)?\s*;)+\s*$" it is {one_hot_encoding}')
+
 
             # Combine all features -------------------------------------------------------
 
