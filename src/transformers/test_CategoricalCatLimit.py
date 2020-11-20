@@ -7,196 +7,130 @@ from CategoricalCatLimit import CategoricalCatLimit
 
 class TestCategoricalCatLimit(unittest.TestCase):
 
-    def test_strings_np(self):
-        cat_array = np.array(["huge", "big", "small", "tiny", "big", "small", "tiny"]).reshape(-1,1)
+    def test_strings(self):
+        cat_list=[ [ii] for ii in ["huge", "big", "small", "tiny", "big", "small", "tiny"]]
+        cat_array = np.array(cat_list)
+        cat_df = pd.DataFrame(cat_array)
 
-        # Check nothing is done as default cat_num is 10
-        cat_limit00 = CategoricalCatLimit()
-        cat_00 = cat_limit00.fit_transform(cat_array)
-
-        self.assertListEqual(cat_limit00.allowed_value[0], ["big", "small", "tiny", "huge"])
-        self.assertListEqual(cat_00.flatten().tolist(), ["huge", "big", "small", "tiny", "big", "small", "tiny"])
-
-        # Check Capping can be applied
-        cat_limit01 = CategoricalCatLimit(cat_num=[3])
-        cat_01 = cat_limit01.fit_transform(cat_array)
-
-        self.assertListEqual(cat_limit01.allowed_value[0], ["big", "small", "tiny"])
-        self.assertListEqual(cat_01.flatten().tolist(), ["other", "big", "small", "tiny", "big", "small", "tiny"])
-
-        # Check default value can be changed
-        cat_limit02 = CategoricalCatLimit(cat_num=[3], other_value=["NA"])
-        cat_02 = cat_limit02.fit_transform(cat_array)
-
-        self.assertListEqual(cat_limit02.allowed_value[0], ["big", "small", "tiny"])
-        self.assertListEqual(cat_02.flatten().tolist(), ["NA", "big", "small", "tiny", "big", "small", "tiny"])
         
+        for X in [cat_list, cat_array, cat_df]:
 
-    def test_strings_pd(self):
-        cat_df = pd.DataFrame(np.array(["huge", "big", "small", "tiny", "big", "small", "tiny"]), columns=["size"])
+            # Check nothing is done as default cat_num is 10
+            cat_limit00 = CategoricalCatLimit()
+            cat_00 = cat_limit00.fit_transform(X)
 
-        # Check nothing is done as default cat_num is 10
-        cat_limit00 = CategoricalCatLimit()
-        cat_00 = cat_limit00.fit_transform(cat_df)
+            self.assertListEqual(cat_limit00.allowed_value[0], ["big", "small", "tiny", "huge"])
+            self.assertListEqual(cat_00[0], ["huge", "big", "small", "tiny", "big", "small", "tiny"])
 
-        self.assertListEqual(cat_limit00.allowed_value[0], ["big", "small", "tiny", "huge"])
-        self.assertListEqual(cat_00["size"].tolist(), ["huge", "big", "small", "tiny", "big", "small", "tiny"])
+            # Check Capping can be applied
+            cat_limit01 = CategoricalCatLimit(cat_num=[3])
+            cat_01 = cat_limit01.fit_transform(X)
 
-        # Check Capping can be applied
-        cat_limit01 = CategoricalCatLimit(cat_num=[3])
-        cat_01 = cat_limit01.fit_transform(cat_df)
+            self.assertListEqual(cat_limit01.allowed_value[0], ["big", "small", "tiny"])
+            self.assertListEqual(cat_01[0], ["other", "big", "small", "tiny", "big", "small", "tiny"])
 
-        self.assertListEqual(cat_limit01.allowed_value[0], ["big", "small", "tiny"])
-        self.assertListEqual(cat_01["size"].tolist(), ["other", "big", "small", "tiny", "big", "small", "tiny"])
+            # Check default value can be changed
+            cat_limit02 = CategoricalCatLimit(cat_num=[3], other_value=["NA"])
+            cat_02 = cat_limit02.fit_transform(cat_array)
 
-        # Check default value can be changed
-        cat_limit02 = CategoricalCatLimit(cat_num=[3], other_value=["NA"])
-        cat_02 = cat_limit02.fit_transform(cat_df)
+            self.assertListEqual(cat_limit02.allowed_value[0], ["big", "small", "tiny"])
+            self.assertListEqual(cat_02[0], ["NA", "big", "small", "tiny", "big", "small", "tiny"])
+            self.assertListEqual(cat_limit02.other_value, ["NA"])
 
-        self.assertListEqual(cat_limit02.allowed_value[0], ["big", "small", "tiny"])
-        self.assertListEqual(cat_02["size"].tolist(), ["NA", "big", "small", "tiny", "big", "small", "tiny"])
+            # Check the level cap can be set using percentage of exposure
+            cat_limit03 = CategoricalCatLimit(cat_num=[.15])
+            cat_03 = cat_limit03.fit_transform(X)
 
-        with self.assertRaises(ValueError):
-            cat_03 = CategoricalCatLimit(cat_num=[3,2] , other_value=["NA"])
-            cat_03 # stop linting error
-
-        with self.assertRaises(ValueError):
-            cat_04 = CategoricalCatLimit(cat_num=[3] , other_value=["NA"])
-            cat_df_04 = pd.DataFrame(np.array([["huge", "big", "small", "tiny", "big", "small", "tiny"],["huge", "big", "small", "tiny", "big", "small", "tiny"]]), columns=["size1", "size2"])
-            cat_04.fit(cat_df_04)
-
-
-    def test_int_np(self):
-        cat_array = np.array([1,2,3,4,2,3,4]).reshape(-1,1)
-
-        # Check nothing is done as default cat_num is 10
-        cat_limit00 = CategoricalCatLimit()
-        cat_00 = cat_limit00.fit_transform(cat_array)
-
-        self.assertListEqual(cat_limit00.allowed_value[0], [2, 3, 4, 1])
-        self.assertListEqual(cat_00.flatten().tolist(), [1,2,3,4,2,3,4])
-
-        # Check Capping can be applied
-        cat_limit01 = CategoricalCatLimit(cat_num=[3])
-        cat_01 = cat_limit01.fit_transform(cat_array)
-
-        self.assertListEqual(cat_limit01.allowed_value[0], [2, 3, 4])
-        self.assertListEqual(cat_01.flatten().tolist(), [-1,2,3,4,2,3,4])
-
-         # Check default value can be changed
-        cat_limit02 = CategoricalCatLimit(cat_num=[3], other_value=[99])
-        cat_02 = cat_limit02.fit_transform(cat_array)
-
-        self.assertListEqual(cat_limit02.allowed_value[0], [2, 3, 4])
-        self.assertListEqual(cat_02.flatten().tolist(), [99,2,3,4,2,3,4])
-
-
-    def test_int_pd(self):
-        cat_df = pd.DataFrame(np.array([1,2,3,4,2,3,4]), columns=["size"])
-
-        # Check nothing is done as default cat_num is 10
-        cat_limit00 = CategoricalCatLimit()
-        cat_00 = cat_limit00.fit_transform(cat_df)
-
-        self.assertListEqual(cat_limit00.allowed_value[0], [2, 3, 4, 1])
-        self.assertListEqual(cat_00["size"].tolist(), [1,2,3,4,2,3,4])
-
-        # Check Capping can be applied
-        cat_limit01 = CategoricalCatLimit(cat_num=[3])
-        cat_01 = cat_limit01.fit_transform(cat_df)
-
-        self.assertListEqual(cat_limit01.allowed_value[0], [2, 3, 4])
-        self.assertListEqual(cat_01["size"].tolist(), [-1,2,3,4,2,3,4])
-
-         # Check default value can be changed
-        cat_limit02 = CategoricalCatLimit(cat_num=[3], other_value=[99])
-        cat_02 = cat_limit02.fit_transform(cat_df)
-
-        self.assertListEqual(cat_limit02.allowed_value[0], [2, 3, 4])
-        self.assertListEqual(cat_02["size"].tolist(), [99,2,3,4,2,3,4])  
-
-
-    def test_float_np(self):
-        cat_array = np.array([1.,2.,3.,4.,2.,3.,4.]).reshape(-1,1)
-
-        # Check nothing is done as default cat_num is 10
-        cat_limit00 = CategoricalCatLimit()
-        cat_00 = cat_limit00.fit_transform(cat_array)
-
-        self.assertListEqual(cat_limit00.allowed_value[0], [2., 3., 4., 1.])
-        self.assertListEqual(cat_00.flatten().tolist(), [1.,2.,3.,4.,2.,3.,4.])
-
-        # Check Capping can be applied
-        cat_limit01 = CategoricalCatLimit(cat_num=[3])
-        cat_01 = cat_limit01.fit_transform(cat_array)
-
-        self.assertListEqual(cat_limit01.allowed_value[0], [2., 3., 4.])
-        self.assertListEqual(cat_01.flatten().tolist(), [-1.,2.,3.,4.,2.,3.,4.])
-
-         # Check default value can be changed
-        cat_limit02 = CategoricalCatLimit(cat_num=[3], other_value=[99])
-        cat_02 = cat_limit02.fit_transform(cat_array)
-
-        self.assertListEqual(cat_limit02.allowed_value[0], [2., 3., 4.])
-        self.assertListEqual(cat_02.flatten().tolist(), [99.,2.,3.,4.,2.,3.,4.])
-
-
-
-    def test_float_pd(self):
-        cat_df = pd.DataFrame(np.array([1.,2.,3.,4.,2.,3.,4.]), columns=["size"])
-
-        # Check nothing is done as default cat_num is 10
-        cat_limit00 = CategoricalCatLimit()
-        cat_00 = cat_limit00.fit_transform(cat_df)
-
-        self.assertListEqual(cat_limit00.allowed_value[0], [2., 3., 4., 1.])
-        self.assertListEqual(cat_00["size"].tolist(), [1.,2.,3.,4.,2.,3.,4.])
-
-        # Check Capping can be applied
-        cat_limit01 = CategoricalCatLimit(cat_num=[3])
-        cat_01 = cat_limit01.fit_transform(cat_df)
-
-        self.assertListEqual(cat_limit01.allowed_value[0], [2., 3., 4.])
-        self.assertListEqual(cat_01["size"].tolist(), [-1.,2.,3.,4.,2.,3.,4.])
-
-         # Check default value can be changed
-        cat_limit02 = CategoricalCatLimit(cat_num=[3], other_value=[99])
-        cat_02 = cat_limit02.fit_transform(cat_df)
-
-        self.assertListEqual(cat_limit02.allowed_value[0], [2., 3., 4.])
-        self.assertListEqual(cat_02["size"].tolist(), [99.,2.,3.,4.,2.,3.,4.])
-
-    def test_multi_col_np(self):
-        pass
+            self.assertListEqual(cat_limit03.allowed_value[0], ["big", "small", "tiny"])
+            self.assertListEqual(cat_03[0], ["other", "big", "small", "tiny", "big", "small", "tiny"])
+            self.assertListEqual(cat_limit03.cat_num_, [3])
+            self.assertListEqual(cat_limit03.cat_num, [.15])
         
-        #cat_array=np.array([("huge", 1, 1.), ("big", 2, 2.), ("small", 3, 3.), ("tiny", 4, 4.), ("big", 2, 2.), ("small", 3, 3.), ("tiny", 4, 4.)], dtype=[('size1', np.object), ('size2', np.int), ('size3', np.float)])
+    def test_int(self):
+        int_list=[ [ii] for ii in [1,2,3,4,2,3,4]]
+        int_array = np.array(int_list)
+        int_df = pd.DataFrame(int_array)
 
-        #cat_limit00 = CategoricalCatLimit(cat_num=[3, 1, 10])
-        #cat_00 = cat_limit00.fit_transform(cat_array)
+        for X in [int_list, int_array, int_df]:
 
-        #self.assertListEqual(cat_limit00.allowed_value[0], ["big", "small", "tiny"])
-        #self.assertListEqual(cat_limit00.allowed_value[1], [2])
-        #self.assertListEqual(cat_limit00.allowed_value[2], [2., 3., 4., 1.])
+            # Check nothing is done as default cat_num is 10
+            int_limit00 = CategoricalCatLimit()
+            int_00 = int_limit00.fit_transform(X)
 
-        #self.assertListEqual(cat_00[:,0].flatten().tolist(), ["other", "big", "small", "tiny", "big", "small", "tiny"])
-        #self.assertListEqual(cat_00[:,1].flatten().tolist(), [-1,2,-1,-1,2,-1,-1])
-        #self.assertListEqual(cat_00[:,2].flatten().tolist(), [1.,2.,3.,4.,2.,3.,4.])
+            self.assertListEqual(int_limit00.allowed_value[0], [2., 3., 4., 1.])
+            self.assertListEqual(int_00[0], [1.,2.,3.,4.,2.,3.,4.])
 
+            # Check Capping can be applied
+            int_limit01 = CategoricalCatLimit(cat_num=[3])
+            int_01 = int_limit01.fit_transform(X)
 
-    def test_multi_col_df(self):
-        d={'size1': ["huge", "big", "small", "tiny", "big", "small", "tiny"], 'size2': [1,2,3,4,2,3,4], 'size3': [1.,2.,3.,4.,2.,3.,4.]}
-        cat_df=pd.DataFrame(data=d)
+            self.assertListEqual(int_limit01.allowed_value[0], [2, 3, 4])
+            self.assertListEqual(int_01[0], [-1.,2.,3.,4.,2.,3.,4.])
 
-        cat_limit00 = CategoricalCatLimit(cat_num=[3, 1, 10])
-        cat_00 = cat_limit00.fit_transform(cat_df)
+            # Check default value can be changed
+            int_limit02 = CategoricalCatLimit(cat_num=[3], other_value=[-999])
+            int_02 = int_limit02.fit_transform(X)
 
-        self.assertListEqual(cat_limit00.allowed_value[0], ["big", "small", "tiny"])
-        self.assertListEqual(cat_limit00.allowed_value[1], [2])
-        self.assertListEqual(cat_limit00.allowed_value[2], [2., 3., 4., 1.])
+            self.assertListEqual(int_limit02.allowed_value[0], [2., 3., 4.])
+            self.assertListEqual(int_02[0], [-999.,2.,3.,4.,2.,3.,4.])
+            self.assertListEqual(int_limit02.other_value, [-999.])
 
-        self.assertListEqual(cat_00["size1"].tolist(), ["other", "big", "small", "tiny", "big", "small", "tiny"])
-        self.assertListEqual(cat_00["size2"].tolist(), [-1,2,-1,-1,2,-1,-1])
-        self.assertListEqual(cat_00["size3"].tolist(), [1.,2.,3.,4.,2.,3.,4.])
+            # Check the level cap can be set using percentage of exposure            
+            flt_limit03 = CategoricalCatLimit(cat_num=[.15])
+            flt_03 = flt_limit03.fit_transform(X)
+
+            self.assertListEqual(flt_limit03.allowed_value[0], [2., 3., 4.])
+            self.assertListEqual(flt_03[0], [-1,2,3,4,2,3,4])
+            self.assertListEqual(flt_limit03.cat_num_, [3])
+            self.assertListEqual(flt_limit03.cat_num, [.15])
+
+    def test_float(self):
+        flt_list=[ [ii] for ii in [1.,2.,3.,4.,2.,3.,4.]]
+        flt_array = np.array(flt_list)
+        flt_df = pd.DataFrame(flt_array)
+
+        for X in [flt_list, flt_array, flt_df]:
+
+            # Check nothing is done as default cat_num is 10
+            flt_limit00 = CategoricalCatLimit()
+            flt_00 = flt_limit00.fit_transform(X)
+
+            self.assertListEqual(flt_limit00.allowed_value[0], [2, 3, 4, 1])
+            self.assertListEqual(flt_00[0], [1,2,3,4,2,3,4])
+
+            # Check Capping can be applied
+            flt_limit01 = CategoricalCatLimit(cat_num=[3])
+            flt_01 = flt_limit01.fit_transform(X)
+
+            self.assertListEqual(flt_limit01.allowed_value[0], [2, 3, 4])
+            self.assertListEqual(flt_01[0], [-1,2,3,4,2,3,4])
+
+            # Check default value can be changed
+            flt_limit02 = CategoricalCatLimit(cat_num=[3], other_value=[-999])
+            flt_02 = flt_limit02.fit_transform(X)
+
+            self.assertListEqual(flt_limit02.allowed_value[0], [2, 3, 4])
+            self.assertListEqual(flt_02[0], [-999,2,3,4,2,3,4])
+            self.assertListEqual(flt_limit02.other_value, [-999])
+
+            # Check the level cap can be set using percentage of exposure
+            int_limit03 = CategoricalCatLimit(cat_num=[.15])
+            int_03 = int_limit03.fit_transform(X)
+
+            self.assertListEqual(int_limit03.allowed_value[0], [2, 3, 4])
+            self.assertListEqual(int_03[0], [-1,2,3,4,2,3,4])
+            self.assertListEqual(int_limit03.cat_num_, [3])
+            self.assertListEqual(int_limit03.cat_num, [.15])
+
+    def test_multi(self):
+        pet_df = np.random.choice(["dog", "cat", "pig", "lama", "elephant"], size=(100,3), p=(0.2, 0.2, 0.2, 0.3, 0.1))
+
+        multi_limit = CategoricalCatLimit(cat_num=[10, 4, 0.15])
+        pet_df_t = multi_limit.fit_transform(pet_df)
+
+        self.assertListEqual(sorted(multi_limit.allowed_value[0]), sorted(["dog", "cat", "pig", "lama", "elephant"]))
+        self.assertListEqual(sorted(multi_limit.allowed_value[1]), sorted(["dog", "cat", "pig", "lama"]))
+        self.assertListEqual(sorted(multi_limit.allowed_value[2]), sorted(["dog", "cat", "pig", "lama"]))
 
 if __name__ == "__main__":
     unittest.main()
